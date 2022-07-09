@@ -49,33 +49,23 @@ export default class ImageGallery extends Component {
         };
  
     }
-    
-
-    
 
     render() {
-    
         return (
             <>
                 {this.state.isLoaded && <MutatingDots/>}
                 <ul className={s.gallery}>
-
                     {this.props.data.map(({ id, webformatURL, largeImageURL }) => {
-                        return (
+                        return (                          
                             <ImageGalleryItem
-                                key={id}
-                                webformatURL={webformatURL}
-                                largeImageURL={largeImageURL}
-                                toggleModal={this.props.toggleModal}
+                            key={id}
+                            webformatURL={webformatURL}
+                            largeImageURL={largeImageURL}
+                            toggleModal={this.props.toggleModal}
                             />
                         )
                     })}
-        
-                    
                 </ul>
-
-                
-              
             </>
         );
     }
