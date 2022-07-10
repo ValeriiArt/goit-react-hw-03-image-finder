@@ -9,12 +9,50 @@ import Button from "./Button";
 
 export class App extends Component {
   state = {
+    key: '27064773-d5b51f526778ba93a6d48a229',
+    image_type: 'photo',
+    orientation: 'horizontal',
+    safesearch: 'true',
+    per_page: 32,
+    page: 1,
+    error: null,
+    isLoaded: false,
     showModal: false,
     searchText: '',
-    data: [],
-    page: 1,
     modalImage:'',
+    data: [],
   };
+
+  componentDidUpdate(_, prevState) {
+    const prevSearchText = prevState.searchText;
+    const nextSearchText = this.state.searchText;
+    const {key, searchText, image_type, orientation, safesearch, per_page, page} = this.state;
+      if (prevSearchText !== nextSearchText || prevState.page !== page) {
+          this.setState({ isLoaded: true})
+          fetch(`https://pixabay.com/api/?key=${key}&q=${searchText}&image_type=${image_type}&orientation=${orientation}&safesearch=${safesearch}&per_page=${per_page}&page=${page}`)
+              .then(response => {
+                  if (response.ok) {
+                      return response.json();
+                  }
+                  return Promise.reject(
+                      new Error('По даному запиту нічого не знайдено.')
+                  );
+              })
+              .then((result) => {
+                  this.setState({
+                    isLoaded: true,
+                    data: [...this.state.data, ...result.hits],
+                  });
+              },
+                (error) => {
+                    this.setState({
+                        isLoaded: true,
+                        error
+                    });
+                  }
+          ).finally(()=>this.setState({isLoaded: false}))   
+      };
+  }
 
   handelFormSubmit = searchText => {
     this.setState({
@@ -22,12 +60,6 @@ export class App extends Component {
             data: [],
         });
     this.setState({ searchText });
-  };
-
-  onChangeData = (data) => {
-    this.setState({
-      data: [...this.state.data, ...data],
-    });
   };
 
   loadMore = () => {
@@ -45,18 +77,16 @@ export class App extends Component {
 
 
   render() {
-    const { showModal, searchText, data, page, modalImage} = this.state;
+    const { showModal, data, modalImage, isLoaded} = this.state;
     return (
       <>
         <Searchbar
           onSubmit={this.handelFormSubmit}
         />
         <ImageGallery
-          searchText={searchText} 
           data={data}
-          page={page} 
           toggleModal={this.toggleModal}
-          onChangeData={this.onChangeData}
+          isLoaded = {isLoaded}
         />
 
         {this.state.data.length > 0 && <Button 
