@@ -13,7 +13,7 @@ export class App extends Component {
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: 'true',
-    per_page: 32,
+    per_page: 12,
     page: 1,
     error: null,
     isLoaded: false,
@@ -21,6 +21,7 @@ export class App extends Component {
     searchText: '',
     modalImage:'',
     data: [],
+    totalHitsPage: null,
   };
 
   componentDidUpdate(_, prevState) {
@@ -38,10 +39,11 @@ export class App extends Component {
                       new Error('По даному запиту нічого не знайдено.')
                   );
               })
-              .then((result) => {
+            .then((result) => {
                   this.setState({
                     isLoaded: true,
                     data: [...this.state.data, ...result.hits],
+                    totalHitsPage: result.totalHits,
                   });
               },
                 (error) => {
@@ -50,15 +52,15 @@ export class App extends Component {
                         error
                     });
                   }
-          ).finally(()=>this.setState({isLoaded: false}))   
-      };
-  }
+          ).finally(() => this.setState({ isLoaded: false }))
+    };
 
   handelFormSubmit = searchText => {
     this.setState({
-            page: 1,
-            data: [],
-        });
+      page: 1,
+      data: [],
+    });
+    
     this.setState({ searchText });
   };
 
@@ -77,7 +79,7 @@ export class App extends Component {
 
 
   render() {
-    const { showModal, data, modalImage, isLoaded} = this.state;
+    const { showModal, data, modalImage, isLoaded, totalHitsPage} = this.state;
     return (
       <>
         <Searchbar
@@ -89,10 +91,10 @@ export class App extends Component {
           isLoaded = {isLoaded}
         />
 
-        {this.state.data.length > 0 && <Button 
+        { data.length !== 0 && totalHitsPage !== data.length && <Button
           nameButton='Load More'
           Click={this.loadMore}
-          />}
+        /> } 
         
         {showModal && (
           <Modal onClose={this.toggleModal}>
