@@ -40,11 +40,13 @@ export class App extends Component {
                   );
               })
             .then((result) => {
+                // const maxFreePage = Math.ceil(result.totalHits / per_page)
                   this.setState({
                     isLoaded: true,
                     data: [...this.state.data, ...result.hits],
                     totalHitsPage: result.totalHits,
                   });
+                  // console.log(maxFreePage)
               },
                 (error) => {
                     this.setState({
@@ -54,13 +56,13 @@ export class App extends Component {
                   }
           ).finally(() => this.setState({ isLoaded: false }))
     };
+  }
 
   handelFormSubmit = searchText => {
     this.setState({
       page: 1,
       data: [],
     });
-    
     this.setState({ searchText });
   };
 
