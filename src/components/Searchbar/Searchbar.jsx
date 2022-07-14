@@ -17,6 +17,7 @@ export default class Searchbar extends Component {
         e.preventDefault();
         if (this.state.searchInputText.trim() === '') {
             toast.error('🦄 Wow so easy!');
+            this.props.value();
             return;
         }
         this.props.onSubmit(this.state.searchInputText);

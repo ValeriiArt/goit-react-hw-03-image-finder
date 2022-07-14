@@ -4,49 +4,49 @@ import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import 'react-toastify/dist/ReactToastify.css';
 import Modal from "./Modal";
 import Searchbar from "./Searchbar";
+import {fetchPictures} from '../service/fetchPictures'
 import ImageGallery from "./ImageGallery";
 import Button from "./Button";
+import { toast } from "react-toastify";
 
 export class App extends Component {
   state = {
-    key: '27064773-d5b51f526778ba93a6d48a229',
-    image_type: 'photo',
-    orientation: 'horizontal',
-    safesearch: 'true',
-    per_page: 12,
-    page: 1,
+    modalImage:'',
     error: null,
     isLoaded: false,
     showModal: false,
     searchText: '',
-    modalImage:'',
+    page: 1,
     data: [],
     totalHitsPage: null,
   };
 
   componentDidUpdate(_, prevState) {
+    
     const prevSearchText = prevState.searchText;
     const nextSearchText = this.state.searchText;
-    const {key, searchText, image_type, orientation, safesearch, per_page, page} = this.state;
+    const {searchText, page} = this.state;
       if (prevSearchText !== nextSearchText || prevState.page !== page) {
           this.setState({ isLoaded: true})
-          fetch(`https://pixabay.com/api/?key=${key}&q=${searchText}&image_type=${image_type}&orientation=${orientation}&safesearch=${safesearch}&per_page=${per_page}&page=${page}`)
-              .then(response => {
+          
+        fetchPictures(searchText, page)
+          .then(response => {
                   if (response.ok) {
                       return response.json();
                   }
-                  return Promise.reject(
-                      new Error('По даному запиту нічого не знайдено.')
+            return Promise.reject(
+                    new Error('По даному запиту нічого не знайдено.')
                   );
               })
-            .then((result) => {
-                // const maxFreePage = Math.ceil(result.totalHits / per_page)
+              .then((result) => {
                   this.setState({
                     isLoaded: true,
                     data: [...this.state.data, ...result.hits],
                     totalHitsPage: result.totalHits,
                   });
-                  // console.log(maxFreePage)
+                if (result.hits.length === 0) {
+                  return toast.error('По даному запиту нічого не знайдено.');
+                }
               },
                 (error) => {
                     this.setState({
